@@ -1,4 +1,4 @@
-name: deploy
+name: Rubiks Solutions deploy
 
 on:
   push:

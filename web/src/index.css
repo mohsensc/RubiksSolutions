@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant landscape-phone (@media (orientation: landscape) and (max-height: 540px));
+
 @theme {
   --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', monospace;
@@ -23,6 +25,12 @@
     height: 100%;
   }
 
+  html {
+    touch-action: pan-x pan-y;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
     margin: 0;
     background: radial-gradient(120% 90% at 42% 38%, #141412 0%, var(--color-ground) 62%);
@@ -33,6 +41,15 @@
     -webkit-font-smoothing: antialiased;
     overflow: hidden;
     overscroll-behavior: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  canvas {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   ::selection {
@@ -71,6 +88,12 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-muted);
+  }
+
+  @media (max-width: 639.98px) {
+    .label {
+      font-size: 12px;
+    }
   }
 
   [data-tip] {

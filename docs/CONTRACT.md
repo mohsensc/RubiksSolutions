@@ -1,4 +1,4 @@
-# QuickCube interface contract (engine <-> web)
+# Rubiks Solutions interface contract (engine <-> web)
 
 This file is the single source of truth shared by the C++ engine (`engine/`) and the web app (`web/`).
 

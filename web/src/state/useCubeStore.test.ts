@@ -40,7 +40,7 @@ function loadSolution(scramble: Move[]) {
 
 describe('cube store', () => {
   beforeEach(() => {
-    useCubeStore.setState({ facelets: solvedFacelets, queue: [], activeItem: null, history: [], solution: null, isSolving: false, solveMethod: 'optimal', isCustomizeOpen: false })
+    useCubeStore.setState({ facelets: solvedFacelets, queue: [], activeItem: null, history: [], solution: null, isSolving: false, isShuffling: false, isPlaying: false, playbackIndex: 0, playbackCursor: 0, solveMessage: null, solveMethod: 'optimal', isCustomizeOpen: false })
   })
 
   afterEach(() => {
@@ -178,6 +178,67 @@ describe('cube store', () => {
     expect(store().solution).not.toBeNull()
     expect(store().queue).toHaveLength(0)
     expect(store().isCustomizeOpen).toBe(false)
+  })
+
+  it('clears the solution and stops playback as soon as a shuffle starts', async () => {
+    let resolveScramble: (moves: string) => void = () => {}
+    vi.spyOn(engine, 'scramble').mockImplementation(() => new Promise((resolve) => (resolveScramble = resolve)))
+    loadSolution(['R', 'U', "F'"])
+    const store = useCubeStore.getState
+    store().togglePlay()
+    const inFlightTurn = store().takeNextItem()!
+    store().stepForward()
+    const pendingShuffle = store().shuffle()
+    expect(store().solution).toBeNull()
+    expect(store().isPlaying).toBe(false)
+    expect(store().playbackIndex).toBe(0)
+    expect(store().queue.some((item) => item.kind === 'turn' && item.origin === 'solution')).toBe(false)
+    resolveScramble('L D2')
+    await pendingShuffle
+    store().completeItem(inFlightTurn, store().facelets)
+    drainQueue()
+    expect(store().solution).toBeNull()
+    expect(store().isPlaying).toBe(false)
+    expect(store().queue).toHaveLength(0)
+  })
+
+  it('clears a completed solution when the user turns a face', () => {
+    loadSolution(['R', 'U'])
+    const store = useCubeStore.getState
+    store().togglePlay()
+    drainQueue()
+    expect(selectIsPlaybackComplete(store())).toBe(true)
+    store().userMove('F')
+    expect(store().solution).toBeNull()
+    expect(store().playbackIndex).toBe(0)
+    expect(store().isPlaying).toBe(false)
+  })
+
+  it('clears the solution on reset', () => {
+    loadSolution(['R', 'U'])
+    const store = useCubeStore.getState
+    store().togglePlay()
+    store().reset()
+    expect(store().solution).toBeNull()
+    expect(store().isPlaying).toBe(false)
+    drainQueue()
+    expect(store().facelets).toBe(solvedFacelets)
+  })
+
+  it('ignores a solve that returns after a shuffle', async () => {
+    let resolveSolve: (result: SolveResult) => void = () => {}
+    vi.spyOn(engine, 'solve').mockImplementation(() => new Promise((resolve) => (resolveSolve = resolve)))
+    vi.spyOn(engine, 'scramble').mockResolvedValue('L D2 B')
+    const store = useCubeStore.getState
+    store().userMove('R')
+    drainQueue()
+    const pendingSolve = store().solve()
+    await store().shuffle()
+    expect(store().isSolving).toBe(false)
+    resolveSolve({ ok: true, method: 'optimal', moves: ["R'"], moveCount: 1, timeMs: 1, stages: [{ name: 'Two-phase', moves: ["R'"] }] })
+    await pendingSolve
+    expect(store().solution).toBeNull()
+    expect(store().isSolving).toBe(false)
   })
 
   it('reports playback completion', () => {

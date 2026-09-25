@@ -1,4 +1,4 @@
-name: ci
+name: Rubiks Solutions CI
 
 on:
   pull_request:

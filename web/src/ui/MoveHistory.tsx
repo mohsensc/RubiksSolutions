@@ -9,10 +9,16 @@ export function MoveHistory() {
   const visibleMoves = history.slice(-visibleMoveCount)
   if (history.length === 0) return null
   return (
-    <section aria-label="Move history" className="flex shrink-0 flex-col gap-2 max-lg:order-2">
+    <motion.section
+      aria-label="Move history"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2, delay: 0.22 }}
+      className="flex shrink-0 flex-col gap-2"
+    >
       <div className="flex items-baseline justify-between">
         <span className="label">History</span>
-        <span className="font-mono text-[10px] text-muted">{history.length}</span>
+        <span className="font-mono text-[10px] text-muted max-lg:text-[12px] pointer-coarse:text-[12px]">{history.length}</span>
       </div>
       <div className="flex flex-wrap gap-x-2 gap-y-1 font-mono text-[13px]">
         {hiddenCount > 0 && <span className="text-muted">+{hiddenCount}</span>}
@@ -31,6 +37,6 @@ export function MoveHistory() {
           ))}
         </AnimatePresence>
       </div>
-    </section>
+    </motion.section>
   )
 }

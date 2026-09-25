@@ -1,5 +1,14 @@
+import { useIsPresent } from 'framer-motion'
+import { useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useCubeStore } from '../state/useCubeStore'
+
+export function usePresenceSnapshot<T>(value: T): T {
+  const isPresent = useIsPresent()
+  const snapshotRef = useRef(value)
+  if (isPresent) snapshotRef.current = value
+  return snapshotRef.current
+}
 
 export function usePlaybackPosition() {
   return useCubeStore(

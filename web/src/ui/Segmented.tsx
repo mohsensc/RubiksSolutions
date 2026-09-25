@@ -36,7 +36,13 @@ export function Segmented<Value extends string | number>({
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const step = stepByKey[event.key]
     const targetIndex =
-      event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 : step ? (selectedIndex + step + options.length) % options.length : -1
+      event.key === 'Home'
+        ? 0
+        : event.key === 'End'
+          ? options.length - 1
+          : step
+            ? (selectedIndex + step + options.length) % options.length
+            : -1
     if (targetIndex < 0) return
     event.preventDefault()
     event.stopPropagation()
@@ -63,7 +69,9 @@ export function Segmented<Value extends string | number>({
             data-tip-align={option.tipAlign}
             onClick={() => onChange(option.value)}
             className={`relative flex-1 rounded-full font-mono uppercase tracking-[0.08em] transition-colors duration-200 ${
-              isCompact ? 'px-2 py-1.5 text-[11px]' : 'px-3 py-2 text-[12px]'
+              isCompact
+                ? 'px-2 py-1.5 text-[11px] max-sm:text-[12px] pointer-coarse:min-h-10 pointer-coarse:min-w-10'
+                : 'px-3 py-2 text-[12px] pointer-coarse:min-h-11'
             } ${isActive ? 'text-ink' : 'text-muted hover:text-ink'}`}
           >
             {isActive && (

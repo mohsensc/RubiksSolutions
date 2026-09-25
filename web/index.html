@@ -1,17 +1,74 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Rubik&#39;s Cube Solver Online, Step by Step | Rubiks Solutions</title>
+    <meta name="description" content="Free online Rubik&#39;s cube solver. Copy your 3x3 cube, pick Fastest (~20 moves), Beginner or CFOP, and learn how to solve it step by step in 3D with notation." />
+    <link rel="canonical" href="https://rubiks.solutions/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#0c0c0b" />
-    <title>QuickCube</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='26' rx='6' fill='%230c0c0b'/%3E%3Crect x='7' y='7' width='8' height='8' rx='2' fill='%23d9ff5b'/%3E%3Crect x='17' y='7' width='8' height='8' rx='2' fill='%23ecebe6'/%3E%3Crect x='7' y='17' width='8' height='8' rx='2' fill='%23ecebe6'/%3E%3Crect x='17' y='17' width='8' height='8' rx='2' fill='%23ecebe6'/%3E%3C/svg%3E" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="application-name" content="Rubiks Solutions" />
+    <meta name="apple-mobile-web-app-title" content="Rubiks Solutions" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Rubiks Solutions" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="Rubik&#39;s Cube Solver Online, Step by Step | Rubiks Solutions" />
+    <meta property="og:description" content="Free online Rubik&#39;s cube solver. Copy your 3x3 cube, pick Fastest (~20 moves), Beginner or CFOP, and learn how to solve it step by step in 3D with notation." />
+    <meta property="og:url" content="https://rubiks.solutions/" />
+    <meta property="og:image" content="https://rubiks.solutions/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Rubiks Solutions: a 3D Rubik&#39;s cube being solved step by step" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Rubik&#39;s Cube Solver Online, Step by Step | Rubiks Solutions" />
+    <meta name="twitter:description" content="Free online Rubik&#39;s cube solver. Copy your 3x3 cube, pick Fastest (~20 moves), Beginner or CFOP, and learn how to solve it step by step in 3D with notation." />
+    <meta name="twitter:image" content="https://rubiks.solutions/og-image.png" />
+    <meta name="twitter:image:alt" content="Rubiks Solutions: a 3D Rubik&#39;s cube being solved step by step" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" /></noscript>
+    <style>
+      html { background: #0c0c0b; color-scheme: dark; }
+      .bootWordmark { position: fixed; top: max(1rem, env(safe-area-inset-top)); left: 1.25rem; display: flex; flex-direction: column; gap: 0.125rem; margin: 0; font-family: Geist, ui-sans-serif, system-ui, sans-serif; color: #ecebe6; }
+      .bootWordmarkName { display: flex; align-items: center; gap: 0.5rem; font-size: 15px; font-weight: 600; line-height: 1.5; letter-spacing: -0.02em; }
+      .bootWordmarkTagline { padding-left: 22px; font-size: 12px; font-weight: 400; line-height: 1rem; color: #8d8c86; }
+      .bootWordmarkGlyph { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; width: 14px; height: 14px; }
+      .bootWordmarkGlyph i { border-radius: 1.5px; background: #ecebe6; }
+      .bootWordmarkGlyph i:first-child { background: #d9ff5b; }
+      .bootWordmarkMuted { font-weight: 500; color: #8d8c86; }
+      @media (min-width: 1024px) { .bootWordmark { top: 1.5rem; left: 1.75rem; } }
+    </style>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://rubiks.solutions/#organization","name":"Rubiks Solutions","url":"https://rubiks.solutions/","logo":{"@type":"ImageObject","url":"https://rubiks.solutions/icons/icon-512.png","width":512,"height":512}},{"@type":"WebSite","@id":"https://rubiks.solutions/#website","name":"Rubiks Solutions","url":"https://rubiks.solutions/","inLanguage":"en","publisher":{"@id":"https://rubiks.solutions/#organization"}},{"@type":"WebApplication","@id":"https://rubiks.solutions/#app","name":"Rubiks Solutions","alternateName":"Rubik's Cube Solver","url":"https://rubiks.solutions/","description":"Free online Rubik's cube solver. Copy your cube, pick Fastest, Beginner or CFOP and follow the solution step by step in 3D.","applicationCategory":"GameApplication","applicationSubCategory":"EducationalApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript and WebGL","image":"https://rubiks.solutions/og-image.png","inLanguage":"en","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["3x3 Rubik's cube solver","Fastest solution in about 20 moves","Beginner layer-by-layer method","CFOP method: cross, F2L, OLL, PLL","Paint your real cube and flag impossible stickers","Step-by-step 3D playback with speed control","Keyboard, button and drag turning","Cube notation guide"],"publisher":{"@id":"https://rubiks.solutions/#organization"}}]}</script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="bootWordmark" aria-hidden="true"><span class="bootWordmarkName"><span class="bootWordmarkGlyph"><i></i><i></i><i></i><i></i></span><span>Rubiks <span class="bootWordmarkMuted">Solutions</span></span></span><span class="bootWordmarkTagline">Rubik&#39;s cube solver, step by step</span></div></div>
+    <noscript>
+      <main style="max-width:40rem;margin:0 auto;padding:3rem 1.5rem;color:#ecebe6;font-family:system-ui,sans-serif;line-height:1.6">
+        <h1>Rubik&#39;s Cube Solver</h1>
+        <p>Rubiks Solutions solves any 3x3 Rubik&#39;s cube in your browser. Copy your real cube, pick a method and follow the solution step by step in 3D. Turn on JavaScript to use the solver.</p>
+        <h2>Solving methods</h2>
+        <ul>
+          <li>Fastest: about 20 moves</li>
+          <li>Beginner: layer by layer, in seven stages from the first cross to the last corners</li>
+          <li>CFOP: cross, F2L, OLL, PLL</li>
+        </ul>
+        <h2>Notation</h2>
+        <p>R turns the right face clockwise, R&#39; counterclockwise and R2 twice, each seen from the face itself.</p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

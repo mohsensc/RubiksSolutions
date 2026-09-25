@@ -107,6 +107,7 @@ export function RubiksCube({ isMotionReduced }: { isMotionReduced: boolean }) {
   isMotionReducedRef.current = isMotionReduced
   const camera = useThree((state) => state.camera)
   const canvas = useThree((state) => state.gl.domElement)
+  const invalidate = useThree((state) => state.invalidate)
 
   const paintStickers = (facelets: string) => {
     stickerRefs.current.forEach((mesh, faceletIndex) => {
@@ -157,7 +158,8 @@ export function RubiksCube({ isMotionReduced }: { isMotionReduced: boolean }) {
     }
   }
 
-  useFrame((_, delta) => {
+  useFrame((frameState, delta) => {
+    if (animationRef.current || nudgeRef.current || useCubeStore.getState().queue.length > 0) frameState.invalidate()
     let animation = animationRef.current
     if (!animation) {
       const nextItem = useCubeStore.getState().takeNextItem()
@@ -315,7 +317,10 @@ export function RubiksCube({ isMotionReduced }: { isMotionReduced: boolean }) {
       gesture.hasTurned = true
       const result = resolveDrag(gesture, dragX, dragY)
       if (result?.kind === 'move') useCubeStore.getState().userMove(result.move)
-      else if (result?.kind === 'slice' && !animationRef.current) nudgeRef.current = { axis: result.axis, elapsed: 0 }
+      else if (result?.kind === 'slice' && !animationRef.current) {
+        nudgeRef.current = { axis: result.axis, elapsed: 0 }
+        invalidate()
+      }
     }
 
     const handlePointerEnd = () => {
@@ -336,7 +341,7 @@ export function RubiksCube({ isMotionReduced }: { isMotionReduced: boolean }) {
       window.removeEventListener('pointerup', handlePointerEnd)
       window.removeEventListener('pointercancel', handlePointerEnd)
     }
-  }, [camera, canvas])
+  }, [camera, canvas, invalidate])
 
   return (
     <group ref={rootRef}>

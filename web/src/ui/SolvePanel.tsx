@@ -1,6 +1,7 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useIsPresent } from 'framer-motion'
 import { CircleCheck, LoaderCircle, Pause, Play, RotateCcw, Shuffle, StepBack, StepForward, Zap } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { isSolved } from '../cube/facelets'
 import type { EngineStatus, SolveMethod } from '../engine/types'
 import { stageDisplayName } from '../state/stages'
@@ -11,9 +12,10 @@ import {
   selectProjectedFacelets,
   useCubeStore,
   type PlaybackSpeed,
+  type Solution,
 } from '../state/useCubeStore'
 import { Segmented, type SegmentedOption } from './Segmented'
-import { usePlaybackPosition } from './usePlaybackPosition'
+import { usePlaybackPosition, usePresenceSnapshot } from './usePlaybackPosition'
 import { useReducedMotion } from './useReducedMotion'
 
 const methodOptions: SegmentedOption<SolveMethod>[] = [
@@ -48,7 +50,7 @@ function PlaybackButton({
       data-tip-side="bottom"
       onClick={onClick}
       disabled={isDisabled}
-      className={`flex size-9 items-center justify-center rounded-full transition-[background-color,transform,border-color] duration-150 active:scale-[0.93] disabled:opacity-30 ${
+      className={`flex size-9 items-center justify-center rounded-full pointer-coarse:before:absolute pointer-coarse:before:-inset-1 pointer-coarse:before:content-[''] transition-[background-color,transform,border-color] duration-150 active:scale-[0.93] disabled:opacity-30 ${
         isPrimary
           ? 'bg-ink text-ground hover:bg-ink/90'
           : 'border border-line text-ink hover:border-line-strong hover:bg-ink/[0.04]'
@@ -60,10 +62,16 @@ function PlaybackButton({
 }
 
 export function PlaybackControls({ isRestartShown = true }: { isRestartShown?: boolean }) {
-  const isPlaying = useCubeStore((state) => state.isPlaying)
-  const playbackCursor = useCubeStore((state) => state.playbackCursor)
-  const moveCount = useCubeStore((state) => state.solution?.moves.length ?? 0)
-  const isPlaybackComplete = useCubeStore(selectIsPlaybackComplete)
+  const { isPlaying, playbackCursor, moveCount, isPlaybackComplete } = usePresenceSnapshot(
+    useCubeStore(
+      useShallow((state) => ({
+        isPlaying: state.isPlaying,
+        playbackCursor: state.playbackCursor,
+        moveCount: state.solution?.moves.length ?? 0,
+        isPlaybackComplete: selectIsPlaybackComplete(state),
+      })),
+    ),
+  )
   const { togglePlay, stepBack, stepForward, restartPlayback } = useCubeStore.getState()
   return (
     <div className="flex items-center gap-1">
@@ -85,42 +93,74 @@ export function PlaybackControls({ isRestartShown = true }: { isRestartShown?: b
   )
 }
 
-function scrollChipIntoList(chip: HTMLElement, list: HTMLElement, behavior: ScrollBehavior) {
-  if (list.scrollHeight <= list.clientHeight) return
-  const edgeMargin = 28
-  const listBounds = list.getBoundingClientRect()
-  const chipBounds = chip.getBoundingClientRect()
-  const overflowAbove = chipBounds.top - (listBounds.top + edgeMargin)
-  const overflowBelow = chipBounds.bottom - (listBounds.bottom - edgeMargin)
-  const scrollOffset = overflowAbove < 0 ? overflowAbove : overflowBelow > 0 ? overflowBelow : 0
-  if (scrollOffset !== 0) list.scrollBy({ top: scrollOffset, behavior })
+function findScrollContainer(element: HTMLElement): HTMLElement | null {
+  for (let current = element.parentElement; current; current = current.parentElement) {
+    const { overflowY } = getComputedStyle(current)
+    if ((overflowY === 'auto' || overflowY === 'scroll') && current.scrollHeight > current.clientHeight) return current
+  }
+  return null
 }
+
+function stickyCoverage(container: HTMLElement): number {
+  const sticky = container.querySelector<HTMLElement>('[data-sticky-controls]')
+  if (!sticky || getComputedStyle(sticky).position !== 'sticky') return 0
+  return sticky.getBoundingClientRect().bottom - container.getBoundingClientRect().top
+}
+
+function scrollChipIntoView(chip: HTMLElement, behavior: ScrollBehavior) {
+  const container = findScrollContainer(chip)
+  if (!container) return
+  const edgeMargin = 28
+  const containerBounds = container.getBoundingClientRect()
+  const chipBounds = chip.getBoundingClientRect()
+  const visibleTop = containerBounds.top + Math.max(0, stickyCoverage(container))
+  const overflowAbove = chipBounds.top - (visibleTop + edgeMargin)
+  const overflowBelow = chipBounds.bottom - (containerBounds.bottom - edgeMargin)
+  const scrollOffset = overflowAbove < 0 ? overflowAbove : overflowBelow > 0 ? overflowBelow : 0
+  if (scrollOffset !== 0) container.scrollBy({ top: scrollOffset, behavior })
+}
+
+const solutionExitEase = [0.4, 0, 0.2, 1] as const
 
 export function SolutionView() {
   const solution = useCubeStore((state) => state.solution)
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      {solution && <SolutionDetails key={solution.id} solution={solution} />}
+    </AnimatePresence>
+  )
+}
+
+function SolutionDetails({ solution }: { solution: Solution }) {
   const speed = useCubeStore((state) => state.speed)
   const setSpeed = useCubeStore((state) => state.setSpeed)
-  const { highlightIndex, currentStageIndex } = usePlaybackPosition()
+  const { highlightIndex, currentStageIndex } = usePresenceSnapshot(usePlaybackPosition())
+  const isPresent = useIsPresent()
   const activeChipRef = useRef<HTMLSpanElement | null>(null)
-  const chipListRef = useRef<HTMLDivElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
     const activeChip = activeChipRef.current
-    const chipList = chipListRef.current
-    if (!activeChip || !chipList) return
-    scrollChipIntoList(activeChip, chipList, prefersReducedMotion ? 'auto' : 'smooth')
-  }, [highlightIndex, prefersReducedMotion])
+    if (!activeChip || !isPresent) return
+    scrollChipIntoView(activeChip, prefersReducedMotion ? 'auto' : 'smooth')
+  }, [highlightIndex, prefersReducedMotion, isPresent])
 
-  if (!solution) return null
   let runningIndex = 0
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{
+        opacity: 0,
+        height: 0,
+        flexGrow: 0,
+        marginTop: '-1.25rem',
+        transition: prefersReducedMotion ? { duration: 0 } : { duration: 0.26, ease: solutionExitEase },
+      }}
       transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
-      className="flex flex-col gap-4 max-lg:order-1 lg:min-h-0 lg:flex-1"
+      aria-hidden={!isPresent || undefined}
+      className={`flex flex-col gap-4 lg:min-h-0 lg:flex-1 ${isPresent ? '' : 'pointer-events-none overflow-hidden'}`}
     >
       <div className="flex items-end justify-between">
         <div className="flex items-baseline gap-1.5">
@@ -138,10 +178,7 @@ export function SolutionView() {
         <Segmented options={speedOptions} value={speed} onChange={setSpeed} indicatorId="speed" ariaLabel="Speed" isCompact />
       </div>
 
-      <div
-        ref={chipListRef}
-        className="hairline-scroll fade-scroll -mx-1 flex max-h-40 flex-col gap-4 overflow-y-auto px-1 pt-2 pb-4 lg:max-h-none lg:min-h-0 lg:flex-1"
-      >
+      <div className="hairline-scroll -mx-1 flex flex-col gap-4 px-1 pt-2 pb-4 lg:fade-scroll lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
         {solution.stages.map((stage, stageIndex) => {
           const stageStart = runningIndex
           runningIndex += stage.moves.length
@@ -152,13 +189,13 @@ export function SolutionView() {
                 <span className={`label transition-colors ${isCurrentStage ? 'text-ink!' : ''}`}>
                   {stageDisplayName(stage.name, solution.startFacelets)}
                 </span>
-                <span className="flex items-baseline gap-2 font-mono text-[10px] text-faint">
+                <span className="flex items-baseline gap-2 font-mono text-[10px] text-faint max-lg:text-[12px] pointer-coarse:text-[12px]">
                   {stage.case && <span className="text-muted">{stage.case}</span>}
                   <span>{stage.moves.length}</span>
                 </span>
               </header>
               {stage.moves.length === 0 ? (
-                <span className="font-mono text-[11px] text-faint">skip</span>
+                <span className="font-mono text-[11px] max-sm:text-[12px] text-faint">skip</span>
               ) : (
                 <div className="flex flex-wrap gap-1">
                   {stage.moves.map((move, offset) => {

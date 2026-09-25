@@ -112,6 +112,12 @@ export const useCubeStore = create<CubeState>((set, get) => {
     if (get().isSolving) set({ isSolving: false })
   }
 
+  const discardSolution = () => {
+    cancelPendingSolve()
+    clearSolution()
+    set((state) => ({ queue: withoutPendingSolutionItems(state.queue) }))
+  }
+
   const replaceState = (facelets: string) => {
     cancelPendingSolve()
     clearSolution()
@@ -137,11 +143,7 @@ export const useCubeStore = create<CubeState>((set, get) => {
     isShuffling: false,
 
     userMove: (move) => {
-      cancelPendingSolve()
-      if (get().solution) {
-        clearSolution()
-        set((state) => ({ queue: withoutPendingSolutionItems(state.queue) }))
-      }
+      discardSolution()
       set((state) => ({ history: [...state.history, move] }))
       enqueue(turnItem(move, 'user'))
     },
@@ -150,29 +152,21 @@ export const useCubeStore = create<CubeState>((set, get) => {
       const { history } = get()
       const lastMove = history[history.length - 1]
       if (!lastMove) return
-      cancelPendingSolve()
-      if (get().solution) {
-        clearSolution()
-        set((state) => ({ queue: withoutPendingSolutionItems(state.queue) }))
-      }
+      discardSolution()
       set({ history: history.slice(0, -1) })
       enqueue(turnItem(invertMove(lastMove), 'undo'))
     },
 
     shuffle: async () => {
       if (get().isShuffling) return
+      discardSolution()
       set({ isShuffling: true })
       const scramble = await engine
         .scramble(shuffleLength)
         .then((moves) => moves.split(/\s+/).filter(isMove))
         .catch(() => generateScramble(shuffleLength))
-      cancelPendingSolve()
-      clearSolution()
-      set((state) => ({
-        queue: withoutPendingSolutionItems(state.queue),
-        history: [...state.history, ...scramble],
-        isShuffling: false,
-      }))
+      discardSolution()
+      set((state) => ({ history: [...state.history, ...scramble], isShuffling: false }))
       enqueue(...scramble.map((move) => turnItem(move, 'shuffle')))
     },
 

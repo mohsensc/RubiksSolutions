@@ -1,8 +1,8 @@
-# QuickCube
+# Rubiks Solutions
 
-A 3D Rubik's cube in the browser, solved by a C++ engine compiled to WebAssembly.
+Solve any Rubik's cube in the browser: a 3D cube driven by a C++ solver compiled to WebAssembly.
 
-**Live:** https://mohsensc.github.io/QuickCube/
+**Live:** https://rubiks.solutions
 
 ```mermaid
 flowchart LR
@@ -39,7 +39,7 @@ cd web && npm test && npm run build
 
 ## Keys
 
-`U R F D L B` turn a face, `Shift` reverses, `Backspace` undoes, `Space` plays or pauses, arrows step.
+`U R F D L B` turn a face, `Shift` reverses, `Backspace` undoes, `Space` plays or pauses, arrows step. `?` or the help icon opens a short handbook.
 
 ## Layout
 
@@ -47,4 +47,10 @@ cd web && npm test && npm run build
 - `web/` Vite, React, react-three-fiber
 - `docs/CONTRACT.md` engine to web interface
 
-Pushes to `main` test, build and deploy to GitHub Pages.
+## Deploy
+
+Pushes to `main` test, build and deploy to GitHub Pages at https://rubiks.solutions.
+
+- Repo Settings > Pages: source is GitHub Actions, custom domain `rubiks.solutions`, enforce HTTPS.
+- `web/public/CNAME` holds the domain and Vite builds with `base: '/'`.
+- DNS for the apex: `A` records `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` and `AAAA` records `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`. Add `CNAME www -> mohsensc.github.io` so `www` redirects to the apex.
