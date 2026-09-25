@@ -46,6 +46,7 @@ interface CubeState {
   isPlaying: boolean
   isMovePadOpen: boolean
   isCustomizeOpen: boolean
+  customizeSeed: string | null
   isShuffling: boolean
   userMove: (move: Move) => void
   undo: () => void
@@ -63,6 +64,7 @@ interface CubeState {
   restartPlayback: () => void
   setMovePadOpen: (isOpen: boolean) => void
   setCustomizeOpen: (isOpen: boolean) => void
+  openCustomizeWith: (facelets: string) => void
   setEngineStatus: (status: EngineStatus) => void
 }
 
@@ -140,6 +142,7 @@ export const useCubeStore = create<CubeState>((set, get) => {
     isPlaying: false,
     isMovePadOpen: false,
     isCustomizeOpen: false,
+    customizeSeed: null,
     isShuffling: false,
 
     userMove: (move) => {
@@ -174,7 +177,7 @@ export const useCubeStore = create<CubeState>((set, get) => {
 
     applyCustomFacelets: (facelets) => {
       if (facelets !== projectedFacelets(get())) replaceState(facelets)
-      set({ isCustomizeOpen: false })
+      set({ isCustomizeOpen: false, customizeSeed: null })
     },
 
     takeNextItem: () => {
@@ -298,7 +301,10 @@ export const useCubeStore = create<CubeState>((set, get) => {
 
     setMovePadOpen: (isMovePadOpen) => set({ isMovePadOpen }),
 
-    setCustomizeOpen: (isCustomizeOpen) => set(isCustomizeOpen ? { isCustomizeOpen, isPlaying: false } : { isCustomizeOpen }),
+    setCustomizeOpen: (isCustomizeOpen) =>
+      set(isCustomizeOpen ? { isCustomizeOpen, isPlaying: false } : { isCustomizeOpen, customizeSeed: null }),
+
+    openCustomizeWith: (facelets) => set({ isCustomizeOpen: true, customizeSeed: facelets, isPlaying: false }),
 
     setEngineStatus: (engineStatus) => set({ engineStatus }),
   }

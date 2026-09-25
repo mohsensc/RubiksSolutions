@@ -10,7 +10,7 @@ import {
 } from 'react'
 import { useMediaQuery } from './useMediaQuery'
 
-const handleHeight = 36
+const handleHeight = 26
 const compactHeightEstimate = handleHeight + 64
 const expandedViewportShare = 0.56
 const maxExpandedHeight = 540
@@ -224,7 +224,7 @@ function BottomSheet({ children, compactBar }: MobileSheetProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="flex flex-col px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          className="flex flex-col px-4 pt-2.5 pb-[max(1rem,env(safe-area-inset-bottom))]"
         >
           {isShowingExpanded ? children : compactBar}
         </motion.div>

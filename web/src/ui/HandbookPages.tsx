@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import paintPhoto from '../assets/handbook/paint.webp'
+import capturePhoto from '../assets/handbook/photo.webp'
 import playbackPhoto from '../assets/handbook/playback.webp'
 import shufflePhoto from '../assets/handbook/shuffle.webp'
 import solvePhoto from '../assets/handbook/solve.webp'
@@ -182,6 +183,13 @@ export const handbookPages: HandbookPage[] = [
     caption: 'Copy your real cube. Impossible stickers get flagged.',
     photo: paintPhoto,
     photoAlt: 'Unfolded cube net',
+  },
+  {
+    id: 'photo',
+    title: 'Photo',
+    caption: 'Snap two corners. We read every sticker.',
+    photo: capturePhoto,
+    photoAlt: 'Camera view with the cube locked inside the green frame',
   },
   {
     id: 'notation',

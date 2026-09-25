@@ -245,7 +245,7 @@ function SheetAction({ icon: Icon, label, onClick }: { icon: typeof Eraser; labe
 
 function CustomizeBody({ onClose }: { onClose: () => void }) {
   const initialFacelets = useMemo(() => selectProjectedFacelets(useCubeStore.getState()), [])
-  const [draft, setDraft] = useState(initialFacelets)
+  const [draft, setDraft] = useState(() => useCubeStore.getState().customizeSeed ?? initialFacelets)
   const [brush, setBrush] = useState<Face>('U')
   const engineStatus = useCubeStore((state) => state.engineStatus)
   const applyCustomFacelets = useCubeStore((state) => state.applyCustomFacelets)
