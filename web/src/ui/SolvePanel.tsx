@@ -208,7 +208,7 @@ function SolutionDetails({ solution }: { solution: Solution }) {
                         ref={isActive ? activeChipRef : undefined}
                         className={`min-w-8 rounded-md border px-1.5 py-1 text-center font-mono text-[12px] transition-colors duration-200 ${
                           isActive
-                            ? 'border-accent bg-accent text-accent-ink'
+                            ? 'border-cube-green/60 bg-cube-green/15 text-ink'
                             : isDone
                               ? 'border-line text-ink'
                               : 'border-line text-muted'
@@ -269,11 +269,11 @@ export function PrimaryActions() {
         onClick={solve}
         disabled={!isEngineReady || isSolving || isBusy}
         data-tip={solveTips[engineStatus]}
-        className={`flex h-11 items-center justify-center gap-2 rounded-full transition-[transform,opacity,background-color,color] duration-150 active:scale-[0.98] disabled:bg-ink/[0.06] disabled:text-faint ${
-          isSolveDimmed ? 'border border-line text-muted hover:text-ink' : 'bg-accent text-accent-ink hover:bg-accent/90'
+        className={`group flex h-11 items-center justify-center gap-2 rounded-full border transition-[transform,opacity,background-color,border-color,color] duration-150 active:scale-[0.98] disabled:animate-none disabled:border-line disabled:bg-transparent disabled:text-faint disabled:shadow-none ${
+          isSolveDimmed ? 'border-line text-muted hover:border-line-strong hover:text-ink' : 'solve-glow text-ink'
         }`}
       >
-        {isSolving ? <LoaderCircle size={16} className="animate-spin" aria-hidden /> : <Zap size={16} strokeWidth={2} aria-hidden />}
+        {isSolving ? <LoaderCircle size={16} className="animate-spin text-cube-green" aria-hidden /> : <Zap size={16} strokeWidth={1.8} className={isSolveDimmed ? undefined : 'text-cube-green group-disabled:text-faint'} aria-hidden />}
         <span className="text-[14px] font-medium">{isSolving ? 'Solving' : 'Solve'}</span>
       </button>
     </div>
@@ -293,7 +293,7 @@ function SolveMessage() {
             exit={{ opacity: 0 }}
             className={`flex items-center justify-center gap-2 font-mono text-[12px] ${solveMessage.tone === 'error' ? 'text-danger' : 'text-muted'}`}
           >
-            {solveMessage.tone === 'info' && <CircleCheck size={14} strokeWidth={1.8} className="text-accent" aria-hidden />}
+            {solveMessage.tone === 'info' && <CircleCheck size={14} strokeWidth={1.8} className="text-cube-green" aria-hidden />}
             {solveMessage.text}
           </motion.div>
         )}

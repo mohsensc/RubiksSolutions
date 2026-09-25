@@ -10,7 +10,7 @@
 - Solve it three ways and watch every move play out at the speed you pick
 - A short handbook behind the `?` button
 
-## The C++ behind it
+## Algorithms
 
 All solving happens in a C++17 engine compiled to WebAssembly, so it runs in the browser.
 

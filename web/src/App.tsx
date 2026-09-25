@@ -17,19 +17,17 @@ const CustomizeSheet = lazy(() => import('./ui/CustomizeSheet').then((module) =>
 
 function Wordmark() {
   return (
-    <h1 className="flex flex-col gap-0.5">
-      <span className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.02em]">
-        <span className="grid size-3.5 grid-cols-2 gap-px" aria-hidden>
-          <span className="rounded-[1.5px] bg-accent" />
-          <span className="rounded-[1.5px] bg-ink" />
-          <span className="rounded-[1.5px] bg-ink" />
-          <span className="rounded-[1.5px] bg-ink" />
-        </span>
-        <span>
-          Rubiks <span className="font-medium text-muted">Solutions</span>
-        </span>
+    <h1 className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.02em]">
+      <span className="grid size-3.5 grid-cols-2 gap-px" aria-hidden>
+        <span className="rounded-[1.5px] bg-accent" />
+        <span className="rounded-[1.5px] bg-ink" />
+        <span className="rounded-[1.5px] bg-ink" />
+        <span className="rounded-[1.5px] bg-ink" />
       </span>
-      <span className="pl-[22px] text-[12px] font-normal leading-4 text-muted">Rubik&apos;s cube solver, step by step</span>
+      <span>
+        Rubiks <span className="font-medium text-muted">Solutions</span>
+        <span className="sr-only">: Rubik&apos;s Cube Solver</span>
+      </span>
     </h1>
   )
 }

@@ -5,6 +5,7 @@ import { useCubeStore } from '../state/useCubeStore'
 import { MoveHistory } from './MoveHistory'
 import { MovePad } from './MovePad'
 import { SolutionView, SolveControls } from './SolvePanel'
+import { PhotoButton } from './capture/PhotoButton'
 import { ToolButton } from './ToolButton'
 
 function Toolbar() {
@@ -15,6 +16,7 @@ function Toolbar() {
     <div className="flex gap-1.5">
       <ToolButton icon={RotateCcw} label="Reset" tip="Back to solved" onClick={reset} />
       <ToolButton icon={Paintbrush} label="Paint" tip="Set colors by hand" onClick={() => setCustomizeOpen(true)} />
+      <PhotoButton />
       <ToolButton icon={Undo2} label="Undo" tip="Undo last move" onClick={undo} isDisabled={!canUndo} />
       <ToolButton
         icon={Grid3x3}
