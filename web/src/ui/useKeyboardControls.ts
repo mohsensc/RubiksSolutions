@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { isFace } from '../cube/facelets'
 import type { Move } from '../cube/moves'
 import { useCubeStore } from '../state/useCubeStore'
+import { useCaptureStore } from './capture/useCaptureStore'
 
 function isTypingTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
@@ -12,7 +13,7 @@ export function useKeyboardControls() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(event.target)) return
       const store = useCubeStore.getState()
-      if (store.isCustomizeOpen) return
+      if (store.isCustomizeOpen || useCaptureStore.getState().isOpen) return
       const face = event.key.toUpperCase()
       if (isFace(face)) {
         event.preventDefault()

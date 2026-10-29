@@ -2,6 +2,7 @@ import { AnimatePresence, motion, type PanInfo } from 'framer-motion'
 import { ArrowLeft, ArrowRight, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useCubeStore } from '../state/useCubeStore'
+import { useCaptureStore } from './capture/useCaptureStore'
 import { handbookPages, type HandbookPage } from './HandbookPages'
 
 const snapEase = [0.2, 0.8, 0.2, 1] as const
@@ -17,7 +18,7 @@ export function useHandbookShortcut(open: () => void) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== '?' || event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(event.target)) return
-      if (useCubeStore.getState().isCustomizeOpen) return
+      if (useCubeStore.getState().isCustomizeOpen || useCaptureStore.getState().isOpen) return
       event.preventDefault()
       open()
     }
