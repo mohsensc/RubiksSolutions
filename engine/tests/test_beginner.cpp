@@ -8,7 +8,7 @@
 #include "quickcube/cube.hpp"
 #include "quickcube/json_api.hpp"
 #include "quickcube/solvers.hpp"
-#include "test_helpers.hpp"
+#include <gtest/gtest.h>
 
 using namespace quickcube;
 
@@ -88,7 +88,7 @@ void checkSolve(const CubieCube& start, SolveStats& stats) {
     const auto startTime = std::chrono::steady_clock::now();
     const SolveResult result = solveBeginner(start);
     const double elapsedMs = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - startTime).count();
-    EXPECT(result.ok);
+    EXPECT_TRUE(result.ok);
     if (!result.ok) {
         std::cerr << "  error: " << result.error << "\n  facelets: " << start.toFacelets() << "\n";
         return;
@@ -100,11 +100,11 @@ void checkSolve(const CubieCube& start, SolveStats& stats) {
         EXPECT_EQ(stage.name, kExpectedStageNames[stageIndex]);
         EXPECT_EQ(formatMoves(stage.moves), formatMoves(simplifyMoves(stage.moves)));
         progress.applyMoves(stage.moves);
-        EXPECT(stageGoalReached(progress, stageIndex));
+        EXPECT_TRUE(stageGoalReached(progress, stageIndex));
     }
     const std::vector<Move> allMoves = flattenStages(result.stages);
-    EXPECT(solvesCube(start, allMoves));
-    EXPECT(stagesSolveCube(start, result.stages));
+    EXPECT_TRUE(solvesCube(start, allMoves));
+    EXPECT_TRUE(stagesSolveCube(start, result.stages));
     ++stats.solveCount;
     stats.totalMoves += static_cast<long>(allMoves.size());
     stats.maxMoves = std::max(stats.maxMoves, allMoves.size());
@@ -114,14 +114,14 @@ void checkSolve(const CubieCube& start, SolveStats& stats) {
 
 }
 
-TEST_CASE(solvedCubeProducesEmptyStages) {
+TEST(BeginnerSolver, solvedCubeProducesEmptyStages) {
     const SolveResult result = solveBeginner(CubieCube::solved());
-    EXPECT(result.ok);
+    EXPECT_TRUE(result.ok);
     EXPECT_EQ(result.stages.size(), kExpectedStageNames.size());
-    EXPECT(flattenStages(result.stages).empty());
+    EXPECT_TRUE(flattenStages(result.stages).empty());
 }
 
-TEST_CASE(handPickedCasesSolve) {
+TEST(BeginnerSolver, handPickedCasesSolve) {
     const std::vector<std::string> cases{
         "R",
         "U",
@@ -142,7 +142,7 @@ TEST_CASE(handPickedCasesSolve) {
     }
 }
 
-TEST_CASE(randomScramblesSolve) {
+TEST(BeginnerSolver, randomScramblesSolve) {
     SolveStats stats;
     for (uint32_t seed = 1; seed <= 600; ++seed) {
         const int length = 20 + static_cast<int>(seed % 11);
@@ -159,15 +159,11 @@ TEST_CASE(randomScramblesSolve) {
     }
 }
 
-TEST_CASE(jsonApiSolvesWithBeginner) {
+TEST(BeginnerSolver, jsonApiSolvesWithBeginner) {
     CubieCube cube;
     cube.applyMoves(scramble(42, 25));
     const std::string json = apiSolve(cube.toFacelets(), "beginner");
-    EXPECT(json.find("\"ok\":true") != std::string::npos);
-    EXPECT(json.find("\"method\":\"beginner\"") != std::string::npos);
-    EXPECT(json.find("\"name\":\"Last corners (orient)\"") != std::string::npos);
-}
-
-int main() {
-    return RUN_ALL_TESTS();
+    EXPECT_TRUE(json.find("\"ok\":true") != std::string::npos);
+    EXPECT_TRUE(json.find("\"method\":\"beginner\"") != std::string::npos);
+    EXPECT_TRUE(json.find("\"name\":\"Last corners (orient)\"") != std::string::npos);
 }

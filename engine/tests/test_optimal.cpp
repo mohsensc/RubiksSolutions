@@ -7,7 +7,7 @@
 
 #include "quickcube/cube.hpp"
 #include "quickcube/solvers.hpp"
-#include "test_helpers.hpp"
+#include <gtest/gtest.h>
 
 using namespace quickcube;
 
@@ -23,7 +23,7 @@ double elapsedMs(Clock::time_point since) { return std::chrono::duration<double,
 std::vector<Move> movesOf(const std::string& text) {
     std::vector<Move> moves;
     std::string error;
-    EXPECT(parseMoves(text, moves, error));
+    EXPECT_TRUE(parseMoves(text, moves, error));
     return moves;
 }
 
@@ -47,23 +47,23 @@ SolveCheck solveAndVerify(const CubieCube& cube, const std::string& label) {
     const SolveResult result = solveOptimal(cube);
     SolveCheck check;
     check.timeMs = elapsedMs(startTime);
-    EXPECT(result.ok);
+    EXPECT_TRUE(result.ok);
     EXPECT_EQ(result.stages.size(), static_cast<size_t>(1));
     if (!result.ok || result.stages.size() != 1) {
         std::cerr << "  failed on " << label << ": " << result.error << "\n";
         return check;
     }
     EXPECT_EQ(result.stages.front().name, std::string("Two-phase"));
-    EXPECT(result.stages.front().caseName.empty());
+    EXPECT_TRUE(result.stages.front().caseName.empty());
     const std::vector<Move> solution = flattenStages(result.stages);
-    EXPECT(!hasRedundantNeighbors(solution));
+    EXPECT_TRUE(!hasRedundantNeighbors(solution));
     check.solved = stagesSolveCube(cube, result.stages);
     check.moveCount = static_cast<int>(solution.size());
     if (!check.solved) {
         std::cerr << "  solution does not solve " << label << ": " << formatMoves(solution) << "\n";
     }
-    EXPECT(check.solved);
-    EXPECT(check.moveCount <= kMaxAcceptedLength);
+    EXPECT_TRUE(check.solved);
+    EXPECT_TRUE(check.moveCount <= kMaxAcceptedLength);
     return check;
 }
 
@@ -75,7 +75,7 @@ CubieCube cubeAfter(const std::string& moveText) {
 
 }
 
-TEST_CASE(tablesBuildOnceAndQuickly) {
+TEST(OptimalSolver, tablesBuildOnceAndQuickly) {
     const auto firstStart = Clock::now();
     initOptimalTables();
     const double firstMs = elapsedMs(firstStart);
@@ -83,31 +83,31 @@ TEST_CASE(tablesBuildOnceAndQuickly) {
     initOptimalTables();
     const double secondMs = elapsedMs(secondStart);
     std::cout << "  table build " << std::fixed << std::setprecision(1) << firstMs << " ms, second call " << secondMs << " ms\n";
-    EXPECT(firstMs < 3000.0);
-    EXPECT(secondMs < 1.0);
+    EXPECT_TRUE(firstMs < 3000.0);
+    EXPECT_TRUE(secondMs < 1.0);
 }
 
-TEST_CASE(solvedCubeNeedsNoMoves) {
+TEST(OptimalSolver, solvedCubeNeedsNoMoves) {
     const SolveResult result = solveOptimal(CubieCube::solved());
-    EXPECT(result.ok);
+    EXPECT_TRUE(result.ok);
     EXPECT_EQ(result.stages.size(), static_cast<size_t>(1));
     if (!result.stages.empty()) {
         EXPECT_EQ(result.stages.front().name, std::string("Two-phase"));
-        EXPECT(result.stages.front().moves.empty());
+        EXPECT_TRUE(result.stages.front().moves.empty());
     }
 }
 
-TEST_CASE(shortScramblesGetShortSolutions) {
+TEST(OptimalSolver, shortScramblesGetShortSolutions) {
     const std::vector<std::pair<std::string, int>> shortCases{
         {"R", 1}, {"U2", 1}, {"F'", 1}, {"R U", 2}, {"D L2", 2}, {"R U R' U'", 4}, {"F B'", 2}, {"U D2 R", 3},
     };
     for (const auto& [moveText, optimalLength] : shortCases) {
         const SolveCheck check = solveAndVerify(cubeAfter(moveText), moveText);
-        EXPECT(check.moveCount <= optimalLength + 2);
+        EXPECT_TRUE(check.moveCount <= optimalLength + 2);
     }
 }
 
-TEST_CASE(handPickedPatternsSolve) {
+TEST(OptimalSolver, handPickedPatternsSolve) {
     const std::vector<std::string> patterns{
         "U R2 F B R B2 R U2 L B2 R U' D' R2 F R' L B2 U2 F2",
         "R2 L2 U2 D2 F2 B2",
@@ -122,14 +122,14 @@ TEST_CASE(handPickedPatternsSolve) {
     }
 }
 
-TEST_CASE(superflipReachesTwentyMoves) {
+TEST(OptimalSolver, superflipReachesTwentyMoves) {
     const std::string superflip = "U R2 F B R B2 R U2 L B2 R U' D' R2 F R' L B2 U2 F2";
     const SolveCheck check = solveAndVerify(cubeAfter(superflip), superflip);
     std::cout << "  superflip " << check.moveCount << " moves, " << std::fixed << std::setprecision(1) << check.timeMs << " ms\n";
-    EXPECT(check.moveCount <= 20);
+    EXPECT_TRUE(check.moveCount <= 20);
 }
 
-TEST_CASE(randomScramblesSolveNearOptimally) {
+TEST(OptimalSolver, randomScramblesSolveNearOptimally) {
     int solvedCount = 0;
     int totalMoves = 0;
     int maxMoves = 0;
@@ -161,8 +161,6 @@ TEST_CASE(randomScramblesSolveNearOptimally) {
     }
     std::cout << "\n";
     EXPECT_EQ(solvedCount, kRandomScrambleCount);
-    EXPECT(averageMoves <= 21.0);
-    EXPECT(maxMoves <= 20);
+    EXPECT_TRUE(averageMoves <= 21.0);
+    EXPECT_TRUE(maxMoves <= 20);
 }
-
-int main() { return RUN_ALL_TESTS(); }
