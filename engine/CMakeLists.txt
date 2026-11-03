@@ -19,13 +19,22 @@ add_executable(qc tools/qc.cpp)
 target_link_libraries(qc PRIVATE quickcube_core)
 target_compile_options(qc PRIVATE -O2 -Wall -Wextra)
 
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.tar.gz
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+include(GoogleTest)
 enable_testing()
 file(GLOB testSources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp)
 foreach(testSource ${testSources})
     get_filename_component(testName ${testSource} NAME_WE)
     add_executable(${testName} ${testSource})
-    target_link_libraries(${testName} PRIVATE quickcube_core)
-    target_include_directories(${testName} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+    target_link_libraries(${testName} PRIVATE quickcube_core GTest::gtest_main)
     target_compile_options(${testName} PRIVATE -O2 -Wall -Wextra)
-    add_test(NAME ${testName} COMMAND ${testName})
+    gtest_discover_tests(${testName} DISCOVERY_TIMEOUT 120)
 endforeach()

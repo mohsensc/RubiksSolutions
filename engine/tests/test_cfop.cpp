@@ -8,7 +8,7 @@
 
 #include "../src/cfop_algs.hpp"
 #include "quickcube/solvers.hpp"
-#include "test_helpers.hpp"
+#include <gtest/gtest.h>
 
 using namespace quickcube;
 
@@ -19,7 +19,7 @@ const std::vector<std::string> kExpectedStageNames = {"Cross", "F2L 1", "F2L 2",
 std::vector<Move> movesOf(const std::string& text) {
     std::vector<Move> moves;
     std::string error;
-    EXPECT(parseMoves(text, moves, error));
+    EXPECT_TRUE(parseMoves(text, moves, error));
     return moves;
 }
 
@@ -65,7 +65,7 @@ bool isLastLayerOriented(const CubieCube& cube) {
 }
 
 bool checkSolveResult(const CubieCube& cube, const SolveResult& result) {
-    EXPECT(result.ok);
+    EXPECT_TRUE(result.ok);
     if (!result.ok) {
         std::cerr << "  error: " << result.error << "\n";
         return false;
@@ -81,10 +81,10 @@ bool checkSolveResult(const CubieCube& cube, const SolveResult& result) {
         EXPECT_EQ(formatMoves(simplifyMoves(stage.moves)), formatMoves(stage.moves));
         allGood = allGood && stage.name == kExpectedStageNames[stageIndex];
     }
-    EXPECT(!result.stages[5].caseName.empty());
-    EXPECT(!result.stages[6].caseName.empty());
+    EXPECT_TRUE(!result.stages[5].caseName.empty());
+    EXPECT_TRUE(!result.stages[6].caseName.empty());
     const bool solves = stagesSolveCube(cube, result.stages);
-    EXPECT(solves);
+    EXPECT_TRUE(solves);
     return allGood && solves;
 }
 
@@ -99,34 +99,34 @@ bool crossSolved(const CubieCube& cube) {
 
 }
 
-TEST_CASE(everyOllAlgorithmIsRecognizedAsItsOwnCase) {
+TEST(CfopSolver, everyOllAlgorithmIsRecognizedAsItsOwnCase) {
     EXPECT_EQ(ollAlgorithms().size(), size_t{57});
     for (const NamedAlgorithm& algorithm : ollAlgorithms()) {
         const std::vector<Move> moves = expandAlgorithm(algorithm.notation);
-        EXPECT(!moves.empty());
+        EXPECT_TRUE(!moves.empty());
         const CubieCube caseCube = cubeFrom(invertMoves(moves));
-        EXPECT(isLastLayerOnly(caseCube));
-        EXPECT(!isLastLayerOriented(caseCube));
+        EXPECT_TRUE(isLastLayerOnly(caseCube));
+        EXPECT_TRUE(!isLastLayerOriented(caseCube));
         for (int preTurn = 0; preTurn < 4; ++preTurn) {
             CubieCube turnedCase = cubeFrom(upTurn(preTurn));
             turnedCase.applyMoves(invertMoves(moves));
             const SolveResult result = solveCfop(turnedCase);
             if (checkSolveResult(turnedCase, result)) {
                 EXPECT_EQ(result.stages[5].caseName, algorithm.name);
-                EXPECT(result.stages[0].moves.empty());
+                EXPECT_TRUE(result.stages[0].moves.empty());
             }
         }
     }
 }
 
-TEST_CASE(everyPllAlgorithmIsRecognizedAsItsOwnCase) {
+TEST(CfopSolver, everyPllAlgorithmIsRecognizedAsItsOwnCase) {
     EXPECT_EQ(pllAlgorithms().size(), size_t{21});
     for (const NamedAlgorithm& algorithm : pllAlgorithms()) {
         const std::vector<Move> moves = expandAlgorithm(algorithm.notation);
-        EXPECT(!moves.empty());
+        EXPECT_TRUE(!moves.empty());
         const CubieCube caseCube = cubeFrom(invertMoves(moves));
-        EXPECT(isLastLayerOriented(caseCube));
-        EXPECT(!caseCube.isSolved());
+        EXPECT_TRUE(isLastLayerOriented(caseCube));
+        EXPECT_TRUE(!caseCube.isSolved());
         for (int preTurn = 0; preTurn < 4; ++preTurn) {
             for (int postTurn = 0; postTurn < 4; ++postTurn) {
                 CubieCube turnedCase = cubeFrom(upTurn(preTurn));
@@ -142,7 +142,7 @@ TEST_CASE(everyPllAlgorithmIsRecognizedAsItsOwnCase) {
     }
 }
 
-TEST_CASE(everyLastLayerOrientationIsSolved) {
+TEST(CfopSolver, everyLastLayerOrientationIsSolved) {
     std::set<std::string> ollCaseNames;
     int orientationStates = 0;
     for (int cornerTwists = 0; cornerTwists < 81; ++cornerTwists) {
@@ -176,7 +176,7 @@ TEST_CASE(everyLastLayerOrientationIsSolved) {
     EXPECT_EQ(ollCaseNames.size(), size_t{58});
 }
 
-TEST_CASE(everyLastLayerPermutationIsSolved) {
+TEST(CfopSolver, everyLastLayerPermutationIsSolved) {
     std::set<std::string> pllCaseNames;
     std::vector<uint8_t> cornerOrder{URF, UFL, ULB, UBR};
     int permutationStates = 0;
@@ -200,10 +200,10 @@ TEST_CASE(everyLastLayerPermutationIsSolved) {
     EXPECT_EQ(pllCaseNames.size(), size_t{22});
 }
 
-TEST_CASE(handPickedCubesAreSolved) {
+TEST(CfopSolver, handPickedCubesAreSolved) {
     const SolveResult solvedResult = solveCfop(CubieCube::solved());
     if (checkSolveResult(CubieCube::solved(), solvedResult)) {
-        EXPECT(flattenStages(solvedResult.stages).empty());
+        EXPECT_TRUE(flattenStages(solvedResult.stages).empty());
         EXPECT_EQ(solvedResult.stages[5].caseName, std::string("OLL skip"));
         EXPECT_EQ(solvedResult.stages[6].caseName, std::string("PLL skip"));
     }
@@ -227,28 +227,28 @@ TEST_CASE(handPickedCubesAreSolved) {
     }
 }
 
-TEST_CASE(crossStageIsOptimalAndPreservedThroughF2l) {
+TEST(CfopSolver, crossStageIsOptimalAndPreservedThroughF2l) {
     for (uint32_t seed = 1; seed <= 60; ++seed) {
         const CubieCube cube = cubeFrom(scramble(seed, 25));
         const SolveResult result = solveCfop(cube);
         if (!checkSolveResult(cube, result)) {
             continue;
         }
-        EXPECT(result.stages[0].moves.size() <= 8);
+        EXPECT_TRUE(result.stages[0].moves.size() <= 8);
         CubieCube working = cube;
         working.applyMoves(result.stages[0].moves);
-        EXPECT(crossSolved(working));
+        EXPECT_TRUE(crossSolved(working));
         for (int stageIndex = 1; stageIndex <= 4; ++stageIndex) {
             working.applyMoves(result.stages[stageIndex].moves);
-            EXPECT(crossSolved(working));
+            EXPECT_TRUE(crossSolved(working));
         }
-        EXPECT(isLastLayerOnly(working));
+        EXPECT_TRUE(isLastLayerOnly(working));
         working.applyMoves(result.stages[5].moves);
-        EXPECT(isLastLayerOriented(working));
+        EXPECT_TRUE(isLastLayerOriented(working));
     }
 }
 
-TEST_CASE(randomScramblesAreSolved) {
+TEST(CfopSolver, randomScramblesAreSolved) {
     solveCfop(CubieCube::solved());
     constexpr int kScrambleCount = 600;
     long totalMoves = 0;
@@ -276,17 +276,8 @@ TEST_CASE(randomScramblesAreSolved) {
         maxMs = std::max(maxMs, elapsedMs);
     }
     EXPECT_EQ(solvedCount, kScrambleCount);
-    EXPECT(maxMs < 300.0);
+    EXPECT_TRUE(maxMs < 300.0);
     std::cout << std::fixed << std::setprecision(2) << "  " << solvedCount << " scrambles, moves avg "
               << static_cast<double>(totalMoves) / std::max(solvedCount, 1) << " max " << maxMoves << ", time avg "
               << totalMs / std::max(solvedCount, 1) << " ms max " << maxMs << " ms\n";
-}
-
-int main() {
-    const auto startTime = std::chrono::steady_clock::now();
-    solveCfop(CubieCube::solved());
-    std::cout << std::fixed << std::setprecision(2) << "  table build "
-              << std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - startTime).count()
-              << " ms\n";
-    return RUN_ALL_TESTS();
 }
